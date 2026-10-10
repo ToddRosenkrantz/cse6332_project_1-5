@@ -1,6 +1,6 @@
 # CSE 6332 Course Container: Student Guide (Projects 1-5)
 
-One container gives you everything for Projects 1-5: **nginx**, **Flask** (Python), **Node.js 18**, **Redis 7** and
+One container gives you everything for Projects 1-5: **nginx**, **Flask** (Python), **Node.js 24**, **Redis 7** and
 **MySQL 8** with the **classicmodels** sample database. Everything you create lives in a folder on your own
 computer (`data/`), so it survives stopping, rebuilding or deleting the container.
 
@@ -27,7 +27,8 @@ You may also create your own databases in MySQL if their names start with `stude
    - Windows: use the **WSL 2** backend and make sure virtualization is enabled in your BIOS/UEFI.
    - Allow Docker at least **4 GB of memory** (Docker Desktop > Settings > Resources). The container itself
      uses about 0.6 GB once running.
-   - You need about **3 GB of free disk** (the image is about 1.1 GB and the database about 0.2 GB).
+   - You need about **2 GB of free disk** (the image is about 0.7 GB, with roughly 160 MB to download, and the
+     database about 0.2 GB).
 2. Check that Docker works: open a terminal and run `docker run hello-world`. If it prints a welcome message
    you are ready.
 3. Put this folder (`course-container`) somewhere that is **not** synced by OneDrive, Dropbox or Google Drive.
@@ -145,10 +146,30 @@ is moved forward by the same number of days so that the **latest date in the dat
 2026-10-12**. An order that has not shipped keeps an empty (NULL) shipped date. The setting is `SEMESTER_START` in
 `docker-compose.yaml`; the script is `scripts/shift_dates.sql`.
 
-You can connect with any MySQL tool (MySQL Workbench, DBeaver, VS Code extensions, Python `pymysql`,
-Node `mysql2`). Use host `127.0.0.1`, port `3306`, user `student`, password `student`. Code running **inside** the
-container can also use the socket `/var/run/mysqld/mysqld.sock`. The sample database is a starting point; the
-`student` user can change it, so make a copy (or a `student_` database) for experiments.
+You can connect with any MySQL tool (MySQL Workbench, DBeaver, VS Code extensions, or your own code). Use host
+`127.0.0.1`, port `3306`, user `student`, password `student`. Code running **inside** the container can also use the
+socket `/var/run/mysqld/mysqld.sock`. The sample database is a starting point; the `student` user can change it, so
+make a copy (or a `student_` database) for experiments.
+
+**Database libraries already installed in the container** (no download needed):
+
+| Language | MySQL | Redis |
+|---|---|---|
+| Python 3.12 | `pymysql`, and `mysql.connector` (Oracle's official MySQL Connector/Python) | `redis` |
+| Node.js 24 | `mysql2` (supports promises) | `redis` |
+
+Examples (run inside the container, so the host is `127.0.0.1`):
+
+    # Python
+    import mysql.connector
+    db = mysql.connector.connect(host="127.0.0.1", user="student", password="student", database="classicmodels")
+
+    // Node.js (works from any folder; no npm install needed)
+    const mysql = require('mysql2/promise');
+    const db = await mysql.createConnection({host: '127.0.0.1', user: 'student', password: 'student', database: 'classicmodels'});
+
+The `student` account uses MySQL's `mysql_native_password` login so that older drivers and tutorials work too.
+Need another library? See "Installing extra packages" in section 4.
 
 ## 7. Start over
 

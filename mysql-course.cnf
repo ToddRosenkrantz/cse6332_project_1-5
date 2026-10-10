@@ -1,6 +1,14 @@
+# Installed as /etc/mysql/my.cnf (read by mysqld, mysql and mysqladmin).
 [mysqld]
+user=mysql
 datadir=/data/mysql
+socket=/var/run/mysqld/mysqld.sock
+pid-file=/var/run/mysqld/mysqld.pid
 bind-address=0.0.0.0
 mysqlx=OFF
 disable_log_bin
+secure_file_priv=NULL
 innodb_buffer_pool_size=256M
+
+[client]
+socket=/var/run/mysqld/mysqld.sock

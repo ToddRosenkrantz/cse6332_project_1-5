@@ -24,8 +24,8 @@ if [ ! -f $D/mysql/.course_initialized ]; then
     sleep 1
   done
   M="mysql --socket=/var/run/mysqld/init.sock -uroot"
-  $M -e "CREATE USER IF NOT EXISTS 'student'@'%' IDENTIFIED BY '${STUDENT_PASSWORD}';
-         CREATE USER IF NOT EXISTS 'student'@'localhost' IDENTIFIED BY '${STUDENT_PASSWORD}';"
+  $M -e "CREATE USER IF NOT EXISTS 'student'@'%' IDENTIFIED WITH mysql_native_password BY '${STUDENT_PASSWORD}';
+         CREATE USER IF NOT EXISTS 'student'@'localhost' IDENTIFIED WITH mysql_native_password BY '${STUDENT_PASSWORD}';"
   $M < /opt/sample/classicmodels.sql
   { echo "SET @semester_start_text='${SEMESTER_START}';"; cat /opt/scripts/shift_dates.sql; } | $M
   $M -e "GRANT ALL ON classicmodels.* TO 'student'@'%'; GRANT ALL ON \`student\\_%\`.* TO 'student'@'%';
