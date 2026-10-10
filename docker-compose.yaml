@@ -15,4 +15,4 @@ services:
       SEMESTER_START: "2026-10-12"   # latest date in the sample data is shifted to this day
       STUDENT_PASSWORD: "student"
     volumes:
-      - ./data:/data            # host-visible: www/, flask/, node/, nginx/, mysql/, redis/
+      - ./data:/data:z          # host-visible: www/, flask/, node/, nginx/, mysql/, redis/

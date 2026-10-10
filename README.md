@@ -33,6 +33,20 @@ You may also create your own databases in MySQL if their names start with `stude
 3. Put this folder (`course-container`) somewhere that is **not** synced by OneDrive, Dropbox or Google Drive.
    The database files in `data/mysql` change constantly and will upset sync clients.
 
+### Supported computers
+
+The image is built for both **x86-64 (amd64)** and **ARM64 (aarch64)**; Docker picks the right one automatically.
+
+| Your computer | Notes |
+|---|---|
+| Windows 10/11 with Docker Desktop (WSL 2 backend) | Works. Keep the folder on your normal drive, not a network or synced folder. |
+| Windows with WSL 2 (Docker Engine or Docker Desktop integration) | Works. For the best speed and fewest file-permission problems, keep the folder **inside the Linux filesystem** (for example `~/course-container`), not under `/mnt/c`. |
+| macOS, Intel or Apple Silicon (M1 and later) | Works with Docker Desktop. Apple Silicon runs the ARM64 image natively. In Docker Desktop, use the default VirtioFS file sharing. |
+| Linux, x86-64 or ARM64 (including Raspberry Pi 4/5 with a 64-bit OS) | Works with Docker Engine and the Compose plugin. Add yourself to the `docker` group, or put `sudo` in front of the commands. On Fedora, RHEL and other SELinux systems the `:z` in `docker-compose.yaml` is required; leave it in. |
+
+Not supported: 32-bit systems, Podman without a Docker-compatible Compose, and Windows containers (Docker must be in
+Linux-container mode).
+
 ## 3. Start, stop and daily use
 
 Open a terminal **in the course-container folder** and run:
@@ -161,6 +175,8 @@ container can also use the socket `/var/run/mysqld/mysqld.sock`. The sample data
 | `docker compose logs` is hard to read | Show one service with `docker compose logs --tail 100`, or check state with `docker exec cse6332-course supervisorctl status`. Restart one service with `docker exec cse6332-course supervisorctl restart flask` (also `node`, `nginx`, `mysql`, `redis`). |
 | My app on port 9001 shows "connection refused" or "empty reply" | The app is not running, or it listens on `127.0.0.1`. Start it again inside the container and make it listen on `0.0.0.0`. Use ports 9000 to 9009. |
 | Permission denied when editing files in `data/` (Linux) | Files created by the container are owned by root. Run `sudo chown -R $USER data/www data/flask data/node data/nginx`. |
+| The container starts but MySQL or nginx report "Permission denied" on `/data` (Fedora, RHEL, other SELinux Linux) | The `:z` after `./data:/data` in `docker-compose.yaml` relabels the folder for SELinux. Make sure it is still there, then `docker compose up -d`. |
+| `exec format error`, or Redis exits with an ARM64 kernel warning | The image was built for a different CPU type. Rebuild on your own computer with `docker compose build --no-cache`. If an old kernel makes Redis refuse to start, the repo already passes `--ignore-warnings ARM64-COW-BUG` to Redis; update the repo and rebuild. |
 | The container is slow on Windows | Keep the course-container folder on your normal drive (not a network or synced folder). For the best speed, put it inside your WSL 2 Linux filesystem (for example `~/course-container`). |
 | Something is badly broken | Section 7: reset the database, or reset everything. Copy your own files first. |
 
