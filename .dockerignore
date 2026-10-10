@@ -1,0 +1,8 @@
+# Send Docker only what the Dockerfile copies. Without this, "docker build" would also upload the whole
+# data/ folder (about 200 MB of MySQL files after the first start), .git and the docs on every rebuild.
+*
+!seed
+!scripts
+!sample
+!supervisord.conf
+!mysql-course.cnf

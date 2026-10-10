@@ -1,9 +1,11 @@
-# One container for Projects 1-5.  Start:  docker compose up -d --build
-# The first start loads the classicmodels sample database; follow with: docker compose logs -f
+# One container for Projects 1-5.  Start:  docker compose up -d
+# The first start downloads the prebuilt image (about 160 MB) and loads the classicmodels sample database;
+# follow it with: docker compose logs -f
+# To build the image yourself instead of downloading it:  docker compose up -d --build
 services:
   course:
-    build: .
-    image: cse6332/course:latest
+    image: ghcr.io/toddrosenkrantz/cse6332-course:latest   # prebuilt for amd64 and arm64
+    build: .                                               # used only if the image cannot be pulled or with --build
     container_name: cse6332-course
     restart: unless-stopped
     ports:                      # all bound to localhost only

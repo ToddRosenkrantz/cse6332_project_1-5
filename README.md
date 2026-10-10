@@ -31,7 +31,13 @@ You may also create your own databases in MySQL if their names start with `stude
      database about 0.2 GB).
 2. Check that Docker works: open a terminal and run `docker run hello-world`. If it prints a welcome message
    you are ready.
-3. Put this folder (`course-container`) somewhere that is **not** synced by OneDrive, Dropbox or Google Drive.
+3. Get this folder with the smallest download (about 0.3 MB; you do not need the whole history):
+
+       git clone --depth 1 https://github.com/ToddRosenkrantz/cse6332_project_1-5.git course-container
+
+   or use the green **Code > Download ZIP** button on GitHub. The only large download is the image (about 160 MB), and it
+   is downloaded once: when the image is updated later, Docker fetches only the layers that changed.
+4. Put this folder (`course-container`) somewhere that is **not** synced by OneDrive, Dropbox or Google Drive.
    The database files in `data/mysql` change constantly and will upset sync clients.
 
 ### Supported computers
@@ -52,10 +58,10 @@ Linux-container mode).
 
 Open a terminal **in the course-container folder** and run:
 
-    docker compose up -d --build
+    docker compose up -d
 
-- The first time, Docker downloads and builds the image (a few minutes), then the container loads the sample
-  database (under a minute). Watch it with `docker compose logs -f` and wait for the line
+- The first time, Docker downloads the ready-made image (about 160 MB, one time only) and the container loads the
+  sample database (under a minute). Nothing is built on your computer. Watch it with `docker compose logs -f` and wait for the line
   `=== classicmodels database ready ===`. Press Ctrl+C to stop watching; the container keeps running.
 - Open http://localhost:8080. You should see the course page. http://localhost:8080/flask/ should show JSON
   with an order count, and http://localhost:8080/node/ should show JSON with the Node version.
@@ -175,10 +181,12 @@ Need another library? See "Installing extra packages" in section 4.
 
 - **Reset only the database:** `docker compose down`, delete the folder `data/mysql`, then `docker compose up -d`.
   The sample data is loaded again.
-- **Reset everything:** `docker compose down`, delete the entire `data/` folder, then `docker compose up -d --build`.
+- **Reset everything:** `docker compose down`, delete the entire `data/` folder, then `docker compose up -d`.
   Your own files in `data/www`, `data/flask` and `data/node` are deleted too, so copy them first.
-- **Rebuild the image** after changing the `Dockerfile` or downloading a new version of this folder:
-  `docker compose up -d --build`.
+- **Get the newest image** after your instructor announces an update: `git pull`, then
+  `docker compose pull` and `docker compose up -d`. Only the changed layers are downloaded.
+- **Build the image yourself** (normally not needed; use it if you changed the `Dockerfile`, or the download is
+  blocked on your network): `docker compose up -d --build`.
 - **Change the shifted date:** edit `SEMESTER_START` in `docker-compose.yaml`, delete `data/mysql` and start again.
 
 ## 8. Troubleshooting
