@@ -1,0 +1,8 @@
+* text=auto
+*.sh text eol=lf
+*.sql text eol=lf
+*.conf text eol=lf
+*.cnf text eol=lf
+Dockerfile text eol=lf
+*.pdf binary
+seed/** text eol=lf

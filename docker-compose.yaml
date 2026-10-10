@@ -1,0 +1,18 @@
+# One container for Projects 1-5.  Start:  docker compose up -d --build
+# The first start loads the classicmodels sample database; follow with: docker compose logs -f
+services:
+  course:
+    build: .
+    image: cse6332/course:latest
+    container_name: cse6332-course
+    restart: unless-stopped
+    ports:                      # all bound to localhost only
+      - "127.0.0.1:8080:80"     # nginx -> http://localhost:8080
+      - "127.0.0.1:3306:3306"   # MySQL -> user student / password student
+      - "127.0.0.1:6379:6379"   # Redis
+      - "127.0.0.1:9000-9009:9000-9009"   # your own apps: listen on 0.0.0.0:9000-9009 inside the container
+    environment:
+      SEMESTER_START: "2026-10-12"   # latest date in the sample data is shifted to this day
+      STUDENT_PASSWORD: "student"
+    volumes:
+      - ./data:/data            # host-visible: www/, flask/, node/, nginx/, mysql/, redis/

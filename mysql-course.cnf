@@ -1,0 +1,6 @@
+[mysqld]
+datadir=/data/mysql
+bind-address=0.0.0.0
+mysqlx=OFF
+disable_log_bin
+innodb_buffer_pool_size=256M
