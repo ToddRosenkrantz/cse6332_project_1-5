@@ -4,7 +4,7 @@
 # To build the image yourself instead of downloading it:  docker compose up -d --build
 services:
   course:
-    image: ghcr.io/toddrosenkrantz/cse6332-course:latest   # prebuilt for amd64 and arm64
+    image: ghcr.io/toddrosenkrantz/cse6332-projects-1-5:latest   # prebuilt for amd64 and arm64
     build: .                                               # used only if the image cannot be pulled or with --build
     container_name: cse6332-course
     restart: unless-stopped

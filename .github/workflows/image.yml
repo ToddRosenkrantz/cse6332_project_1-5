@@ -27,7 +27,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           provenance: false
-          tags: ghcr.io/toddrosenkrantz/cse6332-course:latest
+          tags: ghcr.io/toddrosenkrantz/cse6332-projects-1-5:latest
           labels: |
             org.opencontainers.image.source=https://github.com/ToddRosenkrantz/cse6332_project_1-5
             org.opencontainers.image.description=CSE 6332 course container (nginx, Flask, Node.js, Redis, MySQL) for Projects 1-5
