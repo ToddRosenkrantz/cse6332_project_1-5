@@ -1,11 +1,12 @@
 # CSE 6332 course container: nginx + Flask + Node.js + Redis + MySQL in one image.
 # Used for Projects 1-5. Everything students change lives in the host folder mounted at /data.
 #
+# curl is included for testing apps from inside the container (curl -i shows response headers).
 # Kept small on purpose: official Node.js binary instead of Ubuntu's node/npm packages (which pull in
 # hundreds of build-tool packages), only MySQL's core server and client packages (the full mysql-server
 # package needs all of Perl), no unused MySQL tools, no docs/man pages, and no default MySQL data directory.
 
-# ---- stage 1: fetch Node.js (curl and xz stay in this stage and never reach the final image) ----
+# ---- stage 1: fetch Node.js (xz stays in this stage and never reaches the final image) ----
 FROM ubuntu:24.04 AS node
 ARG NODE_VERSION=24.21.0
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl xz-utils \
@@ -19,9 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
  && cd /opt/node && rm -rf include share CHANGELOG.md README.md \
       lib/node_modules/npm/docs lib/node_modules/npm/man lib/node_modules/corepack
 
-# Database client libraries for Node (MySQL and Redis), installed globally so require('mysql2') works
-# from any folder without an internet connection.
-RUN PATH=/opt/node/bin:$PATH npm install -g --omit=dev --no-audit --no-fund mysql2 redis \
+# Node libraries for the projects (MySQL, Redis and the Express web framework), installed globally so
+# require('mysql2') or require('express') works from any folder without an internet connection.
+RUN PATH=/opt/node/bin:$PATH npm install -g --omit=dev --no-audit --no-fund mysql2 redis express \
  && rm -rf /root/.npm
 
 # ---- stage 2: the course image ----
@@ -33,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       mysql-server-core-8.0 mysql-client-core-8.0 \
       python3 python3-pip python3-flask gunicorn \
       python3-redis python3-pymysql \
-      ca-certificates \
+      ca-certificates curl \
  && groupadd -r mysql && useradd -r -g mysql -d /nonexistent -s /usr/sbin/nologin mysql \
  && mkdir -p /etc/mysql /var/run/mysqld \
  && cd /usr/bin \
@@ -56,8 +57,10 @@ COPY seed/    /opt/seed/
 COPY scripts/ /opt/scripts/
 # MySQL "classicmodels" sample database (mysqltutorial.org), loaded on first start.
 COPY sample/  /opt/sample/
-COPY supervisord.conf /etc/supervisor/conf.d/course.conf
-COPY mysql-course.cnf /etc/mysql/my.cnf
+# --chmod: a checkout on a Windows/OneDrive drive makes every file world-writable, and MySQL ignores a
+# world-writable my.cnf (it then fails to start), so set the modes explicitly.
+COPY --chmod=644 supervisord.conf /etc/supervisor/conf.d/course.conf
+COPY --chmod=644 mysql-course.cnf /etc/mysql/my.cnf
 RUN chmod +x /opt/scripts/*.sh && rm -f /etc/nginx/sites-enabled/default
 
 ENV SEMESTER_START=2026-10-12 \

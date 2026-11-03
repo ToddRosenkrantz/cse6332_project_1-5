@@ -13,8 +13,8 @@ Project 6 uses a separate stack (Kafka, Spark, SeaweedFS and so on) with its own
 | Web site (nginx) | http://localhost:8080 | `data/www/` |
 | Flask (Python) | http://localhost:8080/flask/ | `data/flask/app.py` |
 | Node.js | http://localhost:8080/node/ | `data/node/app.js` |
-| MySQL | host `127.0.0.1`, port `3306`, user `student`, password `student`, database `classicmodels` | `data/mysql/` (do not edit) |
-| Redis | host `127.0.0.1`, port `6379`, no password | `data/redis/` (do not edit) |
+| MySQL | inside the container: host `127.0.0.1`, port `3306`, user `student`, password `student`, database `classicmodels` (from your computer: see section 6) | `data/mysql/` (do not edit) |
+| Redis | inside the container: host `127.0.0.1`, port `6379`, no password | `data/redis/` (do not edit) |
 | Your own apps | http://localhost:9000 to 9009 (see section 5) | anywhere under `data/` |
 | nginx settings | | `data/nginx/default.conf` |
 
@@ -152,10 +152,15 @@ is moved forward by the same number of days so that the **latest date in the dat
 2026-10-12**. An order that has not shipped keeps an empty (NULL) shipped date. The setting is `SEMESTER_START` in
 `docker-compose.yaml`; the script is `scripts/shift_dates.sql`.
 
-You can connect with any MySQL tool (MySQL Workbench, DBeaver, VS Code extensions, or your own code). Use host
-`127.0.0.1`, port `3306`, user `student`, password `student`. Code running **inside** the container can also use the
-socket `/var/run/mysqld/mysqld.sock`. The sample database is a starting point; the `student` user can change it, so
-make a copy (or a `student_` database) for experiments.
+Code running **inside** the container connects with host `127.0.0.1`, port `3306`, user `student`, password `student`
+(as in the examples below), or through the socket `/var/run/mysqld/mysqld.sock`. For the command line use
+`docker exec -it cse6332-course mysql -ustudent -pstudent classicmodels`. The sample database is a starting point; the
+`student` user can change it, so make a copy (or a `student_` database) for experiments.
+
+MySQL and Redis are **not** published to your computer, so they never clash with a MySQL or Redis you may have
+installed, and a tool on your computer cannot connect to the wrong server by mistake. To use MySQL Workbench, DBeaver
+or a VS Code extension, uncomment the line `- "127.0.0.1:3307:3306"` in `docker-compose.yaml`, run
+`docker compose up -d`, and connect to host `127.0.0.1`, port `3307`, user `student`, password `student`.
 
 **Database libraries already installed in the container** (no download needed):
 
@@ -163,6 +168,10 @@ make a copy (or a `student_` database) for experiments.
 |---|---|---|
 | Python 3.12 | `pymysql`, and `mysql.connector` (Oracle's official MySQL Connector/Python) | `redis` |
 | Node.js 24 | `mysql2` (supports promises) | `redis` |
+
+Also installed: the Express web framework for Node.js (`require('express')`, no npm install needed), Flask for
+Python, and `curl` for testing your app from inside the container (`curl -i http://127.0.0.1:9001/` shows the
+response headers).
 
 Examples (run inside the container, so the host is `127.0.0.1`):
 
@@ -194,7 +203,7 @@ Need another library? See "Installing extra packages" in section 4.
 | Symptom | Likely cause and fix |
 |---|---|
 | `docker: command not found`, or "Cannot connect to the Docker daemon" | Docker Desktop is not installed or not running. Start it and wait for "Docker Desktop is running". On Windows also check WSL 2 is installed (`wsl --status`) and virtualization is enabled. |
-| `port is already allocated` or `address already in use` (8080, 3306, 6379) | Another program uses it, for example a MySQL or Redis installed on your computer. Stop that program, or change the left-hand number in `docker-compose.yaml` (for example `"127.0.0.1:8081:80"`) and use the new number in the URL. |
+| `port is already allocated` or `address already in use` (8080, 9000-9009, or 3307 if you enabled it) | Another program uses it, for example a MySQL or Redis installed on your computer. Stop that program, or change the left-hand number in `docker-compose.yaml` (for example `"127.0.0.1:8081:80"`) and use the new number in the URL. |
 | Browser cannot reach http://localhost:8080 | Check `docker compose ps` shows the container as running, and read `docker compose logs`. On the very first start wait until you see `classicmodels database ready`. |
 | `/flask/` shows "502 Bad Gateway" | Flask failed to start, usually from a typo in `data/flask/app.py`. Run `docker compose logs --tail 50`, fix the error and save the file. Flask reloads by itself. |
 | Changes to `app.js` do not show | Node does not reload. Run `docker exec cse6332-course supervisorctl restart node`. |
@@ -214,7 +223,8 @@ If you are still stuck, send your instructor: the exact command you ran, the out
 
 ## 9. Security notes
 
-- All ports are published on `127.0.0.1` only, so other computers cannot connect.
+- Only the web ports (8080 and 9000-9009) are published, on `127.0.0.1` only, so other computers cannot connect.
+  MySQL and Redis are reachable only from inside the container unless you enable the optional MySQL port.
 - MySQL (`student` / `student`) and Redis (no password) are for learning only. Never put real data in them and never
   expose them to the internet.
 - Do not commit passwords to a public repository.

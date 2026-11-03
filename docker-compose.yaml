@@ -8,11 +8,14 @@ services:
     build: .                                               # used only if the image cannot be pulled or with --build
     container_name: cse6332-course
     restart: unless-stopped
-    ports:                      # all bound to localhost only
+    # Only ports your browser (or curl) needs are published, all bound to localhost only.
+    # Apps inside the container reach MySQL and Redis directly; use the command lines with docker exec.
+    ports:
       - "127.0.0.1:8080:80"     # nginx -> http://localhost:8080
-      - "127.0.0.1:3306:3306"   # MySQL -> user student / password student
-      - "127.0.0.1:6379:6379"   # Redis
       - "127.0.0.1:9000-9009:9000-9009"   # your own apps: listen on 0.0.0.0:9000-9009 inside the container
+      # Optional: uncomment to use MySQL Workbench, DBeaver or another MySQL tool on your computer
+      # (host 127.0.0.1, port 3307; 3307 avoids a clash with a MySQL already installed on your computer).
+      # - "127.0.0.1:3307:3306"
     environment:
       SEMESTER_START: "2026-10-12"   # latest date in the sample data is shifted to this day
       STUDENT_PASSWORD: "student"
