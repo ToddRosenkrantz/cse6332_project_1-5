@@ -237,5 +237,5 @@ If you are still stuck, send your instructor: the exact command you ran, the out
 | `docker-compose.yaml` | Ports, settings and the `data/` folder mapping (edit this to change ports) |
 | `scripts/` | First-start setup (`entrypoint.sh`) and the date-shift script (`shift_dates.sql`) |
 | `sample/classicmodels.sql` | The sample database (from mysqltutorial.org) |
-| `seed/` | Starter files copied into `data/` the first time |
+| `seed/` | Starter files copied into `data/` the first time (including the Project 5 starter, `data/word-count-app`) |
 | `data/` | **Your work.** Created on first start. Back it up; it is not in the image. |

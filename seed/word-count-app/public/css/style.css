@@ -1,0 +1,34 @@
+/* Dark styles follow the page's theme (data-bs-theme on <html>, set from the OS setting and by the
+   Toggle Theme button), not the OS setting alone, so the toggle restyles everything. */
+[data-bs-theme="dark"] body {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+[data-bs-theme="dark"] canvas {
+  background-color: #1e1e1e;
+}
+
+[data-bs-theme="dark"] h2,
+[data-bs-theme="dark"] h3 {
+  color: #fff;
+}
+
+[data-bs-theme="dark"] .form-label,
+[data-bs-theme="dark"] .form-select,
+[data-bs-theme="dark"] .btn {
+  color-scheme: dark;
+}
+
+[data-bs-theme="dark"] .border {
+  border-color: #555 !important;
+}
+
+.subtitle-text {
+  font-style: italic;
+  color: #555;
+}
+
+[data-bs-theme="dark"] .subtitle-text {
+  color: #cccccc;
+}

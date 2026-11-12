@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Word Chart App - Landing Page</title>
+  <base href="/word-chart-app/">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const toggleButton = document.getElementById('toggleTheme');
+      const toggleIcon = document.getElementById('themeIcon');
+
+      function updateThemeIcon() {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+        toggleIcon.textContent = (currentTheme === 'dark') ? '☀️' : '🌙';
+      }
+
+      if (prefersDark) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+      }
+      updateThemeIcon();
+
+      toggleButton.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+        document.documentElement.setAttribute('data-bs-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        updateThemeIcon();
+      });
+    });
+  </script>
+</head>
+
+<body class="bg-body">
+
+<!-- Theme toggle button -->
+<button id="toggleTheme" class="btn btn-secondary position-fixed top-0 end-0 m-3">
+  <span id="themeIcon"></span> Toggle Theme
+</button>
+
+<div class="container my-5">
+  <h1 class="text-center mb-5">📚 Word Chart App - Choose an Action</h1>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100 shadow">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <h5 class="card-title">📖 Word Counts</h5>
+          <p class="card-text">View top words for a selected book.</p>
+          <a href="word-counts.html" class="btn btn-primary mt-3">Go to Word Counts</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card h-100 shadow">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <h5 class="card-title">🔎 Unique Word Comparison</h5>
+          <p class="card-text">Compare two books to find unique and common words.</p>
+          <a href="unique.html" class="btn btn-primary mt-3">Compare Books</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card h-100 shadow">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <h5 class="card-title">📊 Word Charts</h5>
+          <p class="card-text">Visualize top word frequencies in a chart.</p>
+          <a href="chart.html" class="btn btn-primary mt-3">View Charts</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -2,9 +2,9 @@
 # First start: seed /data (the host folder), initialise MySQL, load and date-shift the classicmodels database.
 set -e
 D=/data
-mkdir -p $D/www $D/flask $D/node $D/nginx $D/mysql $D/redis /var/run/mysqld
+mkdir -p $D/www $D/flask $D/node $D/nginx $D/word-count-app $D/mysql $D/redis /var/run/mysqld
 
-for d in www flask node nginx; do
+for d in www flask node nginx word-count-app; do
   if [ -z "$(ls -A $D/$d 2>/dev/null)" ]; then cp -r /opt/seed/$d/. $D/$d/; fi
 done
 ln -sf $D/nginx/default.conf /etc/nginx/conf.d/default.conf

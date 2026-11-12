@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Find Unique Words - Word Chart App</title>
+  <base href="/word-chart-app/">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const toggleButton = document.getElementById('toggleTheme');
+      const toggleIcon = document.getElementById('themeIcon');
+
+      function updateThemeIcon() {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+        toggleIcon.textContent = (currentTheme === 'dark') ? '☀️' : '🌙';
+      }
+
+      if (prefersDark) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+      }
+      updateThemeIcon();
+
+      toggleButton.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+        document.documentElement.setAttribute('data-bs-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        updateThemeIcon();
+      });
+
+      const book1 = document.getElementById('book1');
+      const book2 = document.getElementById('book2');
+      const results = document.getElementById('results');
+
+      async function loadBooks() {
+        try {
+          const res = await fetch('api/books');
+          const books = await res.json();
+          books.sort();
+          books.forEach(title => {
+            const option1 = document.createElement('option');
+            const option2 = document.createElement('option');
+            option1.value = option1.textContent = title;
+            option2.value = option2.textContent = title;
+            book1.appendChild(option1);
+            book2.appendChild(option2);
+          });
+        } catch (error) {
+          console.error('Error loading books:', error);
+          results.innerHTML = '<p style="color: red;">Failed to load books.</p>';
+        }
+      }
+
+      loadBooks();
+
+      book1.addEventListener('change', () => {
+        const selected = book1.value;
+        Array.from(book2.options).forEach(opt => {
+          opt.disabled = (opt.value === selected);
+        });
+      });
+
+      book2.addEventListener('change', () => {
+        const selected = book2.value;
+        Array.from(book1.options).forEach(opt => {
+          opt.disabled = (opt.value === selected);
+        });
+      });
+
+      document.getElementById('compareForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title1 = book1.value;
+        const title2 = book2.value;
+				const filter = document.getElementById('filterLevel').value;
+
+        if (title1 === title2) {
+          results.innerHTML = '<p style="color: red;">Please select two different books.</p>';
+          return;
+        }
+
+        results.innerHTML = 'Loading...';
+
+        try {
+          const res = await fetch(`api/compare-words?book1=${encodeURIComponent(title1)}&book2=${encodeURIComponent(title2)}&filter=${filter}`);
+          const data = await res.json();
+
+          if (data.error) {
+            results.innerHTML = `<p style="color: red;">${data.error}</p>`;
+          } else {
+            const uniqueTo1 = data.uniqueToBook1;
+            const uniqueTo2 = data.uniqueToBook2;
+            const commonWords = data.commonWords;
+
+            results.innerHTML = `
+              <div class="mb-4">
+                <h4>Summary:</h4>
+                <ul class="list-group">
+                  <li class="list-group-item">📖 Unique to <strong>${title1}</strong>: ${uniqueTo1.length} words</li>
+                  <li class="list-group-item">📘 Unique to <strong>${title2}</strong>: ${uniqueTo2.length} words</li>
+                  <li class="list-group-item">📚 Common words: ${commonWords.length} words</li>
+                </ul>
+								${filter === 'none'	? '<p class="mt-3 text-warning">⚠️ No filtering is enabled. Common words such as "the", "and", and "of" may dominate the results.</p>'	: ''}
+              </div>
+
+              <div class="mt-5" style="overflow-x: auto;">
+                <div class="d-flex flex-nowrap gap-4">
+
+                  <div class="flex-shrink-0" style="min-width: 300px;">
+                    <h4 class="sticky-top bg-body p-2">Unique to <strong>${title1}</strong> (${uniqueTo1.length})</h4>
+                    <ul class="list-group">
+                      ${uniqueTo1.map(w => `<li class="list-group-item">${w}</li>`).join('')}
+                    </ul>
+                  </div>
+
+                  <div class="flex-shrink-0" style="min-width: 300px;">
+                    <h4 class="sticky-top bg-body p-2">Unique to <strong>${title2}</strong> (${uniqueTo2.length})</h4>
+                    <ul class="list-group">
+                      ${uniqueTo2.map(w => `<li class="list-group-item">${w}</li>`).join('')}
+                    </ul>
+                  </div>
+
+                  <div class="flex-shrink-0" style="min-width: 300px;">
+                    <h4 class="sticky-top bg-body p-2">Common Words (${commonWords.length})</h4>
+                    <ul class="list-group">
+                      ${commonWords.map(w => `<li class="list-group-item">${w}</li>`).join('')}
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+            `;
+          }
+        } catch (err) {
+          console.error('Fetch error:', err);
+          results.innerHTML = '<p style="color: red;">Failed to fetch comparison data.</p>';
+        }
+      });
+    });
+  </script>
+</head>
+
+<body class="bg-body">
+
+<!-- Theme toggle button -->
+<button id="toggleTheme" class="btn btn-secondary position-fixed top-0 end-0 m-3">
+  <span id="themeIcon"></span> Toggle Theme
+</button>
+
+<div class="container my-5">
+  <h1 class="text-center mb-4">🔎 Unique Word Comparison</h1>
+
+  <form id="compareForm" class="p-4 rounded bg-body-secondary shadow-sm">
+    <div class="mb-3">
+      <label for="book1" class="form-label">Select Book 1:</label>
+      <select id="book1" class="form-select" required>
+        <option value="" disabled selected>Select the first book</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="book2" class="form-label">Select Book 2:</label>
+      <select id="book2" class="form-select" required>
+        <option value="" disabled selected>Select the second book</option>
+      </select>
+    </div>
+
+		<div class="mb-3">
+  		<label for="filterLevel" class="form-label">
+    		Filter Level
+  		</label>
+
+	  	<select id="filterLevel" class="form-select">
+  	  	<option value="none">None</option>
+    		<option value="basic" selected>Basic</option>
+    		<option value="literary">Literary</option>
+  		</select>
+
+	  	<div class="form-text">
+  	  	Basic removes common English stop words.
+    		Literary additionally removes words like "said", "mr", and "mrs".
+  		</div>
+		</div>
+
+    <div class="d-grid gap-2">
+      <button type="submit" class="btn btn-primary btn-lg">
+        Compare Books
+      </button>
+    </div>
+  </form>
+
+  <div id="results" class="mt-5"></div>
+</div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
