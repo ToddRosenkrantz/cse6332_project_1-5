@@ -16,7 +16,7 @@ docker exec cse6332-course sh /data/word-count-app/fetch_books.sh            # o
 docker exec -it -w /data/word-count-app cse6332-course node server.js        # Ctrl+C stops it
 ```
 
-Open http://localhost:9002/word-chart-app/ . After editing `server.js`, stop it with Ctrl+C and start it again.
+Open http://127.0.0.1:9002/word-chart-app/ . After editing `server.js`, stop it with Ctrl+C and start it again.
 Any Project Gutenberg `.txt` file in `books/` becomes a book; its file name is the title.
 
 ## Redis

@@ -11,7 +11,7 @@
 //
 // Run it inside the container (books go in /data/word-count-app/books, see README.md):
 //   docker exec -it -w /data/word-count-app cse6332-course node server.js
-// then open http://localhost:9002/word-chart-app/
+// then open http://127.0.0.1:9002/word-chart-app/
 //
 // Until the TODOs are done the server runs, but the pages show no books.
 
@@ -247,6 +247,6 @@ app.get('/word-chart-app/api/chart-data/:title/:n', async (req, res) => {
 
 // Start server and index books. 0.0.0.0 so the browser on your computer can reach it.
 app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`Server running at http://localhost:${PORT}/word-chart-app/`);
+  console.log(`Server running at http://127.0.0.1:${PORT}/word-chart-app/`);
   await indexBooks();
 });

@@ -10,12 +10,12 @@ Project 6 uses a separate stack (Kafka, Spark, SeaweedFS and so on) with its own
 
 | Service | How to reach it from your computer | Where its files are (`data/` folder) |
 |---|---|---|
-| Web site (nginx) | http://localhost:8080 | `data/www/` |
-| Flask (Python) | http://localhost:8080/flask/ | `data/flask/app.py` |
-| Node.js | http://localhost:8080/node/ | `data/node/app.js` |
+| Web site (nginx) | http://127.0.0.1:8080 | `data/www/` |
+| Flask (Python) | http://127.0.0.1:8080/flask/ | `data/flask/app.py` |
+| Node.js | http://127.0.0.1:8080/node/ | `data/node/app.js` |
 | MySQL | inside the container: host `127.0.0.1`, port `3306`, user `student`, password `student`, database `classicmodels` (from your computer: see section 6) | `data/mysql/` (do not edit) |
 | Redis | inside the container: host `127.0.0.1`, port `6379`, no password | `data/redis/` (do not edit) |
-| Your own apps | http://localhost:9000 to 9009 (see section 5) | anywhere under `data/` |
+| Your own apps | http://127.0.0.1:9000 to 9009 (see section 5) | anywhere under `data/` |
 | nginx settings | | `data/nginx/default.conf` |
 
 You may also create your own databases in MySQL if their names start with `student_` (for example
@@ -63,8 +63,8 @@ Open a terminal **in the course-container folder** and run:
 - The first time, Docker downloads the ready-made image (about 160 MB, one time only) and the container loads the
   sample database (under a minute). Nothing is built on your computer. Watch it with `docker compose logs -f` and wait for the line
   `=== classicmodels database ready ===`. Press Ctrl+C to stop watching; the container keeps running.
-- Open http://localhost:8080. You should see the course page. http://localhost:8080/flask/ should show JSON
-  with an order count, and http://localhost:8080/node/ should show JSON with the Node version.
+- Open http://127.0.0.1:8080. You should see the course page. http://127.0.0.1:8080/flask/ should show JSON
+  with an order count, and http://127.0.0.1:8080/node/ should show JSON with the Node version.
 
 Daily use:
 
@@ -118,7 +118,7 @@ For a quick test (serves the folder `/data/www` on port 9001):
 
     docker exec -d cse6332-course python3 -m http.server 9001 --bind 0.0.0.0 --directory /data/www
 
-Then open http://localhost:9001. Examples of listening on all addresses:
+Then open http://127.0.0.1:9001. Examples of listening on all addresses:
 - Flask: `app.run(host="0.0.0.0", port=9001)`
 - Node (Express or `http`): `app.listen(9001, "0.0.0.0")`
 
@@ -129,7 +129,7 @@ Apps you start this way stop when the container restarts. Start them again with 
     location /myapp/ { proxy_pass http://127.0.0.1:9001/; }
 
 Then `docker exec cse6332-course nginx -t` and `docker exec cse6332-course nginx -s reload`. Your app is now at
-http://localhost:8080/myapp/ .
+http://127.0.0.1:8080/myapp/ .
 
 **Route D: you need a port outside 9000 to 9009.** Edit `docker-compose.yaml` and add a line under `ports:`, for example:
 
@@ -204,10 +204,11 @@ Need another library? See "Installing extra packages" in section 4.
 |---|---|
 | `docker: command not found`, or "Cannot connect to the Docker daemon" | Docker Desktop is not installed or not running. Start it and wait for "Docker Desktop is running". On Windows also check WSL 2 is installed (`wsl --status`) and virtualization is enabled. |
 | `port is already allocated` or `address already in use` (8080, 9000-9009, or 3307 if you enabled it) | Another program uses it, for example a MySQL or Redis installed on your computer. Stop that program, or change the left-hand number in `docker-compose.yaml` (for example `"127.0.0.1:8081:80"`) and use the new number in the URL. |
-| Browser cannot reach http://localhost:8080 | Check `docker compose ps` shows the container as running, and read `docker compose logs`. On the very first start wait until you see `classicmodels database ready`. |
+| Browser cannot reach http://127.0.0.1:8080 | Check `docker compose ps` shows the container as running, and read `docker compose logs`. On the very first start wait until you see `classicmodels database ready`. |
 | `/flask/` shows "502 Bad Gateway" | Flask failed to start, usually from a typo in `data/flask/app.py`. Run `docker compose logs --tail 50`, fix the error and save the file. Flask reloads by itself. |
 | Changes to `app.js` do not show | Node does not reload. Run `docker exec cse6332-course supervisorctl restart node`. |
 | Changes to HTML or images do not show | Hard-refresh the browser (Ctrl+F5), and check you edited `data/www/` in the right course-container folder. |
+| Pages take a second or more to load | Use http://127.0.0.1:8080 (or :9000 to 9009), not `localhost`. Ports are published on IPv4 `127.0.0.1` only, and many computers try IPv6 (`::1`) for `localhost` first, then fall back after a delay. |
 | "Can't connect to MySQL" or "Access denied" | Wait for `classicmodels database ready` in the logs on the first start. User is `student`, password `student`. Use `127.0.0.1`, not `localhost`, in tools that try a socket by default. Use `docker exec cse6332-course supervisorctl status`; `mysql` must be RUNNING. |
 | MySQL keeps restarting or the first start never finishes | Almost always low disk space, low Docker memory (raise to 4 GB), or a sync client (OneDrive) locking `data/mysql`. Fix that, then `docker compose down`, delete `data/mysql`, and `docker compose up -d`. |
 | `docker compose logs` is hard to read | Show one service with `docker compose logs --tail 100`, or check state with `docker exec cse6332-course supervisorctl status`. Restart one service with `docker exec cse6332-course supervisorctl restart flask` (also `node`, `nginx`, `mysql`, `redis`). |
